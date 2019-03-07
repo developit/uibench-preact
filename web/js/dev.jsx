@@ -1,6 +1,6 @@
 /** This is a direct fork of the React 15.x version from localvoid. It seems to show roughly the same performance. */
 
-import { h, Component, render, options } from 'preact';
+import { h, Component, render } from 'preact';
 
 
 class TableCell extends Component {
@@ -164,21 +164,29 @@ class Main extends Component {
   }
 }
 
+var version = PREACT_VERSION || 10;
 
-uibench.init('Preact', '5.3.1');
+uibench.init('Preact', version);
 
 document.addEventListener('DOMContentLoaded', function(e) {
   var container = document.querySelector('#App'),
-  	start = Date.now(),
-  	root;
+    start = Date.now(),
+    update = render,
+    root;
+    
+  if (version < 10) {
+    update = function(what, container) {
+      root = render(what, container, root);
+    }
+  }
 
   uibench.run(
       function(state) {
-        root = render(<Main data={state}/>, container, root);
+        update(<Main data={state}/>, container);
       },
       function(samples) {
-        root = render(<pre>{JSON.stringify(samples, null, ' ')}</pre>, container, root);
-		console.log(Date.now()-start);
+        update(<pre>{JSON.stringify(samples, null, ' ')}</pre>, container);
+        console.log(Date.now()-start);
       }
   );
 });

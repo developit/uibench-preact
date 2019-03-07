@@ -6,7 +6,8 @@
   "homepage": "https://github.com/localvoid/uibench-preact",
   "repository": "https://github.com/localvoid/uibench-preact",
   "scripts": {
-    "build": "gulp",
+    "build": "gulp && npm run -s build:8",
+    "build:8": "DEST=build/8 PREACT_VERSION=8 gulp",
     "deploy": "gh-pages -d build"
   },
   "author": {

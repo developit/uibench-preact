@@ -6,19 +6,28 @@ var path = require('path');
 
 gulp.task('html', function() {
   gulp.src('web/index.html')
-      .pipe(gulp.dest('build'));
+      .pipe(gulp.dest(process.env.DEST || 'build'));
 });
+
+var PREACT_VERSION = Math.round(process.env.PREACT_VERSION || 10);
+var PREACT = process.env.PREACT;
+if (PREACT_VERSION===8) {
+  PREACT = 'web/preact-8.js';
+}
 
 gulp.task('build', function(callback) {
   var cfg = {
     // entry: ['./web/js/main.jsx'],
     entry: ['./web/js/dev.jsx'],
     output: {
-      path: path.join(__dirname, 'build'),
+      path: path.join(__dirname, process.env.DEST || 'build'),
       filename: 'bundle.js'
     },
     resolve: {
-      extensions: ['', '.js', '.jsx']
+      extensions: ['', '.js', '.jsx'],
+      alias: PREACT ? {
+        preact: path.resolve(__dirname, PREACT)
+      } : {}
     },
     module: {
       loaders: [{
@@ -39,7 +48,12 @@ gulp.task('build', function(callback) {
     },
     plugins: [
       new webpack.NoErrorsPlugin(),
-      new webpack.DefinePlugin({'process.env': {NODE_ENV: JSON.stringify('production')}}),
+      new webpack.DefinePlugin({
+        'process.env': {
+          NODE_ENV: JSON.stringify('production')
+        },
+        PREACT_VERSION
+      }),
       new webpack.optimize.DedupePlugin(),
       new webpack.optimize.UglifyJsPlugin({
           mangle: {
